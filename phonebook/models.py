@@ -33,6 +33,6 @@ class CallDetailRecord(models.Model):
     date = models.DateField(auto_now_add=True)
     
     def __str__(self):
-        return f'{self.date} | {self.lead.contact_name} | {self.lead.contact_number} | {self.selection.key}'
+        return f'{self.date} | {self.lead.contact_name} | {self.lead.contact_number} | {self.selection.key} | {self.selection.description}'
     
 

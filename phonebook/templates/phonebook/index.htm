@@ -20,17 +20,20 @@
             <th>Lead Name</th>
             <th>Lead Number</th>
             <th>Lead Age</th>
-            <th>Selection</th>
+            <th>Selection Key</th>
+            <th>Key Description</th>
         </thead>
         <tbody>
-            {% for lead in leads %}
+            {% for record in records %}
                 <tr>
                     <td>1</td>
-                    <td>{{ lead.phonebook.date }}</td>
-                    <td>{{ lead.phonebook.name}}</td>
-                    <td>{{ lead.contact_name }}</td>
-                    <td>{{ lead.contact_number}}</td>
-                    <td>{{ lead.age }}</td>
+                    <td>{{ record.date }}</td>
+                    <td>{{ record.lead.phonebook.name}}</td>
+                    <td>{{ record.lead.contact_name }}</td>
+                    <td>{{ record.lead.contact_number}}</td>
+                    <td>{{ record.lead.age }}</td>
+                    <td>{{ record.selection.key }}</td>
+                    <td>{{ record.selection.description }}</td>
                 </tr>
             {% endfor %}
         </tbody>

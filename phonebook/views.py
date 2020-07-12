@@ -4,12 +4,12 @@ from django.shortcuts import render
 from .models import Phonebook, Lead, Selection, CallDetailRecord
 
 def index(request):
-    # tem manual phonebook upload
-    upload = input("Upload Phonebook: ")
     
-    # if there is no data in the CDR, populate relevant tables
+    # if there is no data in the CDR, create phonebook and leads
     cdr_data = CallDetailRecord.objects.all()
     if len(cdr_data) <= 0:
+        # temp manual upload phonebook
+        upload = input("Upload Phonebook: ")
         
         # create phonebook
         phonebook = Phonebook()
@@ -35,13 +35,11 @@ def index(request):
                     lead.age = row[age_index]
                     lead.phonebook = phonebook
                     lead.save()
-    
-              
-    context = {
-        'leads': Lead.objects.all(),
-    }
-    
-    print(context)
-    
-        
-    return render(request, 'phonebook/index.htm', context)
+                    
+        return render(request, 'phonebook/index.htm')   
+    else:    
+        context = {
+            'records': CallDetailRecord.objects.all()
+        }    
+            
+        return render(request, 'phonebook/index.htm', context)
