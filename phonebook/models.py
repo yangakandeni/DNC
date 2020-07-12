@@ -1,10 +1,9 @@
 from django.db import models
 
-
 class Phonebook(models.Model):
     name = models.CharField(max_length=30)
     csv_file = models.FileField( upload_to='static/phonebooks', max_length=100)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
         return f'{self.name} | created on {self.date}'
@@ -30,9 +29,15 @@ class Selection(models.Model):
 class CallDetailRecord(models.Model):
     lead = models.ForeignKey(Lead, on_delete=models.CASCADE)
     selection = models.ForeignKey(Selection, on_delete=models.CASCADE) 
-    date = models.DateField(auto_now_add=True)
+    date = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
         return f'{self.date} | {self.lead.contact_name} | {self.lead.contact_number} | {self.selection.key} | {self.selection.description}'
+
+class DoNotCall(models.Model):
+    lead = models.ForeignKey(Lead, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return f'From: {self.lead.phonebook.name} | {self.lead.contact_name} | {self.lead.contact_number} | at {self.lead.phonebook.date.time()}'
     
 

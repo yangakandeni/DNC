@@ -1,25 +1,25 @@
 import csv
 import random
 from django.shortcuts import render
-from .models import Phonebook, Lead, Selection, CallDetailRecord
+from .models import Phonebook, Lead, Selection, CallDetailRecord, DoNotCall
 
 def index(request):
     
     # if CDR is empty, create phonebook and leads
-    cdr_data = CallDetailRecord.objects.all()
+    records = CallDetailRecord.objects.all()
 
     # temp manual upload phonebook
-    upload = input("Upload Phonebook: ")
+    upload = input("\nUpload Phonebook: \n")
     
-    if len(cdr_data) <= 0:
-        
-        
-        # create phonebook
-        phonebook = Phonebook()
-        phonebook.name = upload.split('.')[0]
+    # instantiate phonebook
+    phonebook = Phonebook()
+    phonebook.name = upload.split('.')[0]
+    
+    if len(records) <= 0:
+        # save phonebook to database
         phonebook.save()
         
-        # create lead
+        # save leads to database
         with open(f'static/phonebooks/{upload}') as inFile:
             reader = csv.reader(inFile)
             
@@ -40,27 +40,28 @@ def index(request):
                     lead.phonebook = phonebook
                     lead.save()
                     
-                    # create selection 
+                    # create mock selection 
                     mock_desription = ['Yes', 'No', 'Maybe', 'Call Me Later', 'Do Not Call']
                     selection = Selection()
                     selection.key = random.randrange(0, 5)
                     selection.description = mock_desription[selection.key]
                     selection.save()
 
-                    # simulate CDR creation
+                    # create mock CDR
                     record = CallDetailRecord()
                     record.lead = lead
                     record.selection = selection
                     record.save()
                     
+        # parse mock CDR into template
         context = {
             'records': CallDetailRecord.objects.all()
         }
                     
         return render(request, 'phonebook/index.htm', context)
     
-    elif len(cdr_data) > 0:
-        # temp store phonebook numbers
+    elif len(records) > 0:
+        # temp store phonebook numbers and relative data
         phonebook_numbers = dict()
         
         # extract numbers from phonebook
@@ -71,25 +72,54 @@ def index(request):
             for row in reader:
                 if line_count == 0:
                     file_headers = [title.strip().lower() for title in row if len(title) > 0]
-                    number_index = file_headers.index('contact number')                 
+                    number_index = file_headers.index('contact number')
+                    name_index = file_headers.index('contact name')
+                    age_index = file_headers.index('age')               
                     line_count += 1
                 else:
-                    # add number to storage
-                    phonebook_numbers[row[number_index]] = phonebook_numbers.setdefault(row[number_index], row)
+                    # add number to and relative data to storage
+                    phonebook_numbers[row[number_index]] = phonebook_numbers.setdefault(row[number_index], {'name': row[name_index], 'age': row[age_index]})
                     
-        for record in cdr_data:
-            for number in phonebook_numbers:
+        # check for duplicates   
+        for number in phonebook_numbers:
+            for record in records:
                 # skip duplicates
                 if number == record.lead.contact_number:
-                    # continue
-                    print("\n",number, '|', record.lead.contact_number,'\n')
-                
+                    # save lead to DNC table if selection key same as DNC key
+                    if record.selection.key == '4':
+                        dnc_lead = DoNotCall()
+                        dnc_lead.lead = record.lead
+                        dnc_lead.save()
+                else:
+                    # save phonebook to db
+                    phonebook.save()
+                    # save unique leads
+                    lead = Lead()
+                    lead.contact_name = phonebook_numbers[number].get('name')
+                    lead.contact_number = number
+                    lead.age = phonebook_numbers[number].get('age')
+                    lead.phonebook = phonebook
+                    lead.save()
                     
-        return render(request, 'phonebook/index.htm')
-      
-    else:    
+            # create mock selection 
+            mock_desription = ['Yes', 'No', 'Maybe', 'Call Me Later', 'Do Not Call']
+            selection = Selection()
+            selection.key = random.randrange(0, 5)
+            selection.description = mock_desription[selection.key]
+            selection.save()
+
+            # create mock CDR
+            record = CallDetailRecord()
+            record.lead = lead
+            record.selection = selection
+            record.save()
+                                   
+        # parse mock CDR into template
         context = {
             'records': CallDetailRecord.objects.all()
-        }    
-            
+        }
+        
         return render(request, 'phonebook/index.htm', context)
+      
+    else:   
+        return render(request, 'phonebook/index.htm')
