@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Phonebook(models.Model):
     name = models.CharField(max_length=30)
     csv_file = models.FileField( upload_to='static/phonebooks', max_length=100)
@@ -16,7 +17,6 @@ class Lead(models.Model):
     
     def __str__(self):
         return f'{self.contact_name} | {self.contact_number}'
-    
     
     
 class Selection(models.Model):
