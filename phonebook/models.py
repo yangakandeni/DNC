@@ -16,7 +16,7 @@ class Phonebook(models.Model):
     date = models.DateField(auto_now_add=True)
     
     def __str__(self):
-        return self.name
+        return f'phonebook {self.name} | created on {self.date}'
     
     
 class Selection(models.Model):
