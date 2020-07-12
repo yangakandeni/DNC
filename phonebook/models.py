@@ -23,7 +23,7 @@ class Selection(models.Model):
     description = models.CharField(max_length=30)
     
     def __str__(self):
-        return f'{self.name} | {self.description}'
+        return f'{self.key} | {self.description}'
     
 
 class CallDetailRecord(models.Model):

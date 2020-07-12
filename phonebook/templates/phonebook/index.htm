@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDR</title>
+</head>
+<body>
+    <select name="filter" id="table-filter">
+        <option value="filter-by" selected disabled>Filter By</option>
+        <option value="date">Date</option>
+        <option value="phonebook">Phonebook</option>
+        <option value="selection">DNC</option>
+    </select>
+    <table>
+        <thead >
+            <th>No.</th>
+            <th>Date</th>
+            <th>Phonbook Name</th>
+            <th>Lead Name</th>
+            <th>Lead Number</th>
+            <th>Selection</th>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>today</td>
+                <td>ABC Phonebook</td>
+                <td>Kendrick</td>
+                <td>111</td>
+                <td>3</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const select = document.querySelector('#table-filter')
+            console.log(select)
+        })
+    </script>
+</body>
+</html>
