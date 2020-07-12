@@ -88,11 +88,13 @@ def index(request):
                     # save lead to DNC table if selection key same as DNC key
                     if record.selection.key == '4':
                         dnc_lead = DoNotCall()
+                        # add to DNC table if not exist
                         dnc_lead.lead = record.lead
                         dnc_lead.save()
                 else:
                     # save phonebook to db
                     phonebook.save()
+                    
                     # save unique leads
                     lead = Lead()
                     lead.contact_name = phonebook_numbers[number].get('name')
