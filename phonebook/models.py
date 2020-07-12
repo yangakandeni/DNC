@@ -1,22 +1,22 @@
 from django.db import models
 
-class Lead(models.Model):
-    contact_name = models.CharField(max_length=30)
-    contact_number = models.CharField(max_length=30)
-    age = models.CharField(max_length=3)
-    
-    def __str__(self):
-        return f'{self.contact_name} | {self.contact_number}'
-    
-
 class Phonebook(models.Model):
     name = models.CharField(max_length=30)
-    leads = models.ManyToManyField(Lead)
     csv_file = models.FileField( upload_to='static/phonebooks', max_length=100)
     date = models.DateField(auto_now_add=True)
     
     def __str__(self):
-        return f'phonebook {self.name} | created on {self.date}'
+        return f'{self.name} | created on {self.date}'
+
+class Lead(models.Model):
+    contact_name = models.CharField(max_length=30)
+    contact_number = models.CharField(max_length=30)
+    age = models.CharField(max_length=3)
+    phonebook = models.ForeignKey(Phonebook, on_delete=models.CASCADE, related_name='leads')
+    
+    def __str__(self):
+        return f'{self.contact_name} | {self.contact_number}'
+    
     
     
 class Selection(models.Model):
