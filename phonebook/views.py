@@ -10,6 +10,7 @@ def index(request):
     # if there is no data in the CDR, populate relevant tables
     cdr_data = CallDetailRecord.objects.all()
     if len(cdr_data) <= 0:
+        
         # create phonebook
         phonebook = Phonebook()
         phonebook.name = upload.split('.')[0]
@@ -34,10 +35,13 @@ def index(request):
                     lead.age = row[age_index]
                     lead.phonebook = phonebook
                     lead.save()
-                
+    
+              
     context = {
-        # 'phonebook': new_phonebook
+        'leads': Lead.objects.all(),
     }
+    
+    print(context)
     
         
     return render(request, 'phonebook/index.htm', context)

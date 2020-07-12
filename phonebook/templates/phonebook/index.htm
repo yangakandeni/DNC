@@ -19,17 +19,20 @@
             <th>Phonbook Name</th>
             <th>Lead Name</th>
             <th>Lead Number</th>
+            <th>Lead Age</th>
             <th>Selection</th>
         </thead>
         <tbody>
-            <tr>
-                <td>1</td>
-                <td>today</td>
-                <td>ABC Phonebook</td>
-                <td>Kendrick</td>
-                <td>111</td>
-                <td>3</td>
-            </tr>
+            {% for lead in leads %}
+                <tr>
+                    <td>1</td>
+                    <td>{{ lead.phonebook.date }}</td>
+                    <td>{{ lead.phonebook.name}}</td>
+                    <td>{{ lead.contact_name }}</td>
+                    <td>{{ lead.contact_number}}</td>
+                    <td>{{ lead.age }}</td>
+                </tr>
+            {% endfor %}
         </tbody>
     </table>
 
