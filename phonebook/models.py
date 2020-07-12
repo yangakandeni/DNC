@@ -12,7 +12,7 @@ class Lead(models.Model):
 class Phonebook(models.Model):
     name = models.CharField(max_length=30)
     leads = models.ManyToManyField(Lead)
-    csv_file = models.FileField( upload_to=None, max_length=100)
+    csv_file = models.FileField( upload_to='static/phonebooks', max_length=100)
     date = models.DateField(auto_now_add=True)
     
     def __str__(self):
