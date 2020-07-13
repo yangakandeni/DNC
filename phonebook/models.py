@@ -35,7 +35,7 @@ class CallDetailRecord(models.Model):
         return f'{self.date} | {self.lead.contact_name} | {self.lead.contact_number} | {self.selection.key} | {self.selection.description}'
 
 class DoNotCall(models.Model):
-    lead = models.OneToOneField(Lead, on_delete=models.CASCADE, unique=True)
+    lead = models.ForeignKey(Lead, on_delete=models.CASCADE)
     
     def __str__(self):
         return f'From: {self.lead.phonebook.name} | {self.lead.contact_name} | {self.lead.contact_number} | at {self.lead.phonebook.date.time()}'
