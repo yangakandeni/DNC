@@ -20,7 +20,7 @@ def index(request):
 
     
     if len(records) <= 0:
-        print('\ncdr empty\n')
+        print('\nGenerating CDR ...\n')
         
         # save leads to database
         with open(f'static/phonebooks/{upload}') as inFile:
@@ -68,7 +68,88 @@ def index(request):
     
     else:
         print('\ntheres content\n')
-        return render(request, 'phonebook/index.htm')
+
+        # temp store phonebook numbers and relative data
+        phonebook_dict = dict()
+
+        # extract numbers from phonebook
+        with open(f'static/phonebooks/{upload}') as inFile:
+            reader = csv.reader(inFile)
+            
+            line_count = 0
+            for row in reader:
+                if line_count == 0:
+                    file_headers = [title.strip().lower() for title in row if len(title) > 0]
+                    number_index = file_headers.index('contact number')
+                    name_index = file_headers.index('contact name')
+                    age_index = file_headers.index('age')               
+                    line_count += 1
+                else:
+                    # add number to and relative data to storage
+                    phonebook_dict[row[number_index]] = phonebook_dict.setdefault(row[number_index], {'number': row[number_index], 'name': row[name_index], 'age': row[age_index]})
+
+        print('\n', phonebook_dict, '\n')
+
+        for record in CallDetailRecord.objects.all():
+            if record.lead.contact_number in phonebook_dict:
+                if record.selection.key == '4':
+                    print('\nUpdating DNC ...', record.lead.contact_number, '\n')
+
+                    # add to DNC table
+                    lead = Lead()
+                    lead.contact_name = phonebook_dict[record.lead.contact_number].get("name")
+                    lead.contact_number = phonebook_dict[record.lead.contact_number].get("number")
+                    lead.age = phonebook_dict[record.lead.contact_number].get("age")
+                    lead.phonebook = phonebook
+                    lead.save()
+                    DNC.lead = lead
+                    DNC.save()
+
+                else:
+                    print('\nUpdating record...', record.lead.contact_number, record.selection.key,'\n')
+                    
+                    # Update existing lead
+                    lead = Lead()
+                    lead.contact_name = phonebook_dict[record.lead.contact_number].get("name")
+                    lead.contact_number = phonebook_dict[record.lead.contact_number].get("number")
+                    lead.age = phonebook_dict[record.lead.contact_number].get("age")
+                    lead.phonebook = phonebook
+                    lead.save()
+
+            else:
+                # if record.selection.key == '4':
+                #     continue
+
+                print('\nCreating new record...', record.lead.contact_number, record.selection.key,'\n')
+                
+                # Create new lead
+                with open(f'static/phonebooks/{upload}') as inFile:
+                    reader = csv.reader(inFile)
+                
+                    line_count = 0
+                    for row in reader:
+                        if line_count == 0:
+                            file_headers = [title.strip().lower() for title in row if len(title) > 0]
+                            name_index = file_headers.index('contact name')
+                            number_index = file_headers.index('contact number')
+                            age_index = file_headers.index('age')                    
+                            line_count += 1
+                        else:
+                            # create lead
+                            lead = Lead()
+                            lead.contact_name = row[name_index]
+                            lead.contact_number = row[number_index]
+                            lead.age = row[age_index]
+                            lead.phonebook = phonebook
+                            lead.save()
+
+
+        context = {
+            'records': CallDetailRecord.objects.all()
+        }
+                    
+        return render(request, 'phonebook/index.htm', context)
+
     #     # temp store phonebook numbers and relative data
     #     phonebook_dict = dict()
 
