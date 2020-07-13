@@ -63,7 +63,12 @@ def index(request):
     
     elif len(records) > 0:
         # temp store phonebook numbers and relative data
-        phonebook_numbers = dict()
+        phonebook_dict = dict()
+
+        # retrieve and save CDR data to dict
+        CDR_dict = dict()
+        for record in records:
+            CDR_dict[record.lead.contact_number] = CDR_dict.setdefault(record.lead.contact_number, record.selection.key)
         
         # extract numbers from phonebook
         with open(f'static/phonebooks/{upload}') as inFile:
@@ -79,29 +84,33 @@ def index(request):
                     line_count += 1
                 else:
                     # add number to and relative data to storage
-                    phonebook_numbers[row[number_index]] = phonebook_numbers.setdefault(row[number_index], {'number': row[number_index], 'name': row[name_index], 'age': row[age_index]})
-        dnc = list()
-        for record in records:
-            if not record.lead.contact_number in dnc:
-                # print('\nAdd NOT to db', phonebook_numbers[record.lead.contact_number].get("number"))
+                    phonebook_dict[row[number_index]] = phonebook_dict.setdefault(row[number_index], {'number': row[number_index], 'name': row[name_index], 'age': row[age_index]})
+        
+        print('\n phonebook dict', phonebook_dict, '\n')
+        print('\n CDR dict', CDR_dict, '\n')
+        
+        DNC_list = list()
+        for num in records:
+            if not record.lead.contact_number in DNC_list:
+                # print('\nAdd NOT to db', phonebook_dict[record.lead.contact_number].get("number"))
                 
-                # print(dnc, '\n')
+                # print(DNC_list, '\n')
                 
-                if record.lead.contact_number in phonebook_numbers and record.selection.key == '4':
-                    print(f'\nNo add to db:{record.lead.contact_number} = {phonebook_numbers[record.lead.contact_number].get("number")}')
+                if record.lead.contact_number in phonebook_dict and record.selection.key == '4':
+                    print(f'\nNo add to db:{record.lead.contact_number} = {phonebook_dict[record.lead.contact_number].get("number")}')
                     
-                    dnc.append(phonebook_numbers[record.lead.contact_number].get("number"))
+                    DNC_list.append(phonebook_dict[record.lead.contact_number].get("number"))
                     
-                    print(dnc, '\n')
+                    print(DNC_list, '\n')
                     
                 else:
                     
-                    print('add to db', phonebook_numbers[record.lead.contact_number].get("number"), record.selection.key) 
+                    print('add to db', phonebook_dict[record.lead.contact_number].get("number"), record.selection.key) 
                     # create lead
                     lead = Lead()
-                    lead.contact_name = phonebook_numbers[record.lead.contact_number].get("name")
-                    lead.contact_number = phonebook_numbers[record.lead.contact_number].get("number")
-                    lead.age = phonebook_numbers[record.lead.contact_number].get("age")
+                    lead.contact_name = phonebook_dict[record.lead.contact_number].get("name")
+                    lead.contact_number = phonebook_dict[record.lead.contact_number].get("number")
+                    lead.age = phonebook_dict[record.lead.contact_number].get("age")
                     lead.phonebook = phonebook
                     lead.save()
                     
