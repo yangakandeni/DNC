@@ -82,36 +82,42 @@ def index(request):
                     phonebook_numbers[row[number_index]] = phonebook_numbers.setdefault(row[number_index], {'number': row[number_index], 'name': row[name_index], 'age': row[age_index]})
         dnc = list()
         for record in records:
-            if record.lead.contact_number in phonebook_numbers and record.selection.key == '4':
-                print(f'dont add to db:{record.lead.contact_number} = {phonebook_numbers[record.lead.contact_number].get("number")}')
-                dnc.append(record.lead.contact_number)
-                # save to DNC table  
-            else:
-                if phonebook_numbers[record.lead.contact_number].get("number") in dnc:
-                    continue
+            if not record.lead.contact_number in dnc:
+                # print('\nAdd NOT to db', phonebook_numbers[record.lead.contact_number].get("number"))
                 
-                print('add to db', phonebook_numbers[record.lead.contact_number].get("number"), record.selection.key) 
-                # create lead
-                lead = Lead()
-                lead.contact_name = phonebook_numbers[record.lead.contact_number].get("name")
-                lead.contact_number = phonebook_numbers[record.lead.contact_number].get("number")
-                lead.age = phonebook_numbers[record.lead.contact_number].get("age")
-                lead.phonebook = phonebook
-                lead.save()
+                # print(dnc, '\n')
                 
-                # create mock selection 
-                mock_desription = ['Yes', 'No', 'Maybe', 'Call Me Later', 'Do Not Call']
-                selection = Selection()
-                selection.key = random.randrange(0, 5)
-                selection.description = mock_desription[selection.key]
-                selection.save()
+                if record.lead.contact_number in phonebook_numbers and record.selection.key == '4':
+                    print(f'\nNo add to db:{record.lead.contact_number} = {phonebook_numbers[record.lead.contact_number].get("number")}')
+                    
+                    dnc.append(phonebook_numbers[record.lead.contact_number].get("number"))
+                    
+                    print(dnc, '\n')
+                    
+                else:
+                    
+                    print('add to db', phonebook_numbers[record.lead.contact_number].get("number"), record.selection.key) 
+                    # create lead
+                    lead = Lead()
+                    lead.contact_name = phonebook_numbers[record.lead.contact_number].get("name")
+                    lead.contact_number = phonebook_numbers[record.lead.contact_number].get("number")
+                    lead.age = phonebook_numbers[record.lead.contact_number].get("age")
+                    lead.phonebook = phonebook
+                    lead.save()
+                    
+                    # create mock selection 
+                    mock_desription = ['Yes', 'No', 'Maybe', 'Call Me Later', 'Do Not Call']
+                    selection = Selection()
+                    selection.key = random.randrange(0, 5)
+                    selection.description = mock_desription[selection.key]
+                    selection.save()
 
-                # create mock CDR
-                record = CallDetailRecord()
-                record.lead = lead
-                record.selection = selection
-                record.save()
-        
+                    # create mock CDR
+                    record = CallDetailRecord()
+                    record.lead = lead
+                    record.selection = selection
+                    record.save()
+            
         # parse mock CDR into template
         context = {
             'records': CallDetailRecord.objects.all()
