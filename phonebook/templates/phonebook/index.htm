@@ -24,18 +24,20 @@
             <th>Key Description</th>
         </thead>
         <tbody>
-            {% for record in records %}
-                <tr>
-                    <td>1</td>
-                    <td>{{ record.date }}</td>
-                    <td>{{ record.lead.phonebook.name}}</td>
-                    <td>{{ record.lead.contact_name }}</td>
-                    <td>{{ record.lead.contact_number}}</td>
-                    <td>{{ record.lead.age }}</td>
-                    <td>{{ record.selection.key }}</td>
-                    <td>{{ record.selection.description }}</td>
-                </tr>
-            {% endfor %}
+            {% with count=0 %}
+                {% for record in records %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ record.date }}</td>
+                        <td>{{ record.lead.phonebook.name}}</td>
+                        <td>{{ record.lead.contact_name }}</td>
+                        <td>{{ record.lead.contact_number}}</td>
+                        <td>{{ record.lead.age }}</td>
+                        <td>{{ record.selection.key }}</td>
+                        <td>{{ record.selection.description }}</td>
+                    </tr>
+                {% endfor %}
+            {% endwith %}
         </tbody>
     </table>
 
