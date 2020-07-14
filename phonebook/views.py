@@ -7,11 +7,15 @@ import json
 
 def index(request):
 
-    test_dict = convert_to_dict()
-    
+    data = convert_to_dict()
 
+    # if len(data) <= 0:
+        # create_leads('static/phonebook')
+    #     pass
 
-    return HttpResponse(json.dumps(test_dict))
+    create_leads()
+
+    return HttpResponse(json.dumps(data))
     
     # # temp manual upload phonebook
     # upload = input("\nUpload Phonebook: \n")
@@ -347,4 +351,50 @@ def convert_to_dict(csvfilepath=None, contact_name=None, contact_number=None, ag
     return dict_storage
 
 # print(convert_to_dict(csvfilepath='static/phonebooks/phonebook1.csv', contact_name='contact name', contact_number='contact number', age='age'))
+
+def create_leads():
+    
+    # upload csv file
+    # csvfile = upload_phonebook()
+
+    # for test purposes, gonna use 'phonebook1.csv' as uploaded phoneboook
+    csvfile = 'phonebook1.csv'
+
+    # make instance of Phonebook
+    phonebook = Phonebook()
+    phonebook.name = csvfile
+    phonebook.save()
+
+    # Create new lead
+    with open(f'static/phonebooks/{csvfile}') as inFile:
+        reader = csv.reader(inFile)
+
+        line_count = 0
+        for row in reader:
+            if line_count == 0:
+                file_headers = [title.strip().lower() for title in row if len(title) > 0]
+                name_index = file_headers.index('contact name')
+                number_index = file_headers.index('contact number')
+                age_index = file_headers.index('age')                    
+                line_count += 1
+            else:
+                # create lead
+                lead = Lead()
+                lead.contact_name = row[name_index]
+                lead.contact_number = row[number_index]
+                lead.age = row[age_index]
+                lead.phonebook = phonebook
+                lead.save()
+
+    return 'success'
+
+def upload_phonebook():
+
+    try:
+        phonebook  = input("Upload phonebook: ")
+        return phonebook
+    except:
+        if not phonebook.split('.')[1] is 'csv':
+            return 'Wrong Format'
+            
 
