@@ -1,5 +1,5 @@
 import csv
-# import random
+import random
 from django.shortcuts import render
 from .models import Phonebook, Lead, Selection, CallDetailRecord, DoNotCall
 from django.http import HttpResponse
@@ -9,13 +9,19 @@ def index(request):
 
     data = convert_to_dict()
 
-    # if len(data) <= 0:
-        # create_leads('static/phonebook')
-    #     pass
+    if len(data) <= 0:
+        # save leads to db
+        create_leads()
 
-    create_leads()
+        # simulate CDR
+        simulate_cdr()
 
-    return HttpResponse(json.dumps(data))
+    # parse mock CDR into template
+    context = {
+        'records': CallDetailRecord.objects.all()
+    }
+                
+    return render(request, 'phonebook/index.htm', context)
     
     # # temp manual upload phonebook
     # upload = input("\nUpload Phonebook: \n")
@@ -386,7 +392,7 @@ def create_leads():
                 lead.phonebook = phonebook
                 lead.save()
 
-    return 'success'
+    return None
 
 def upload_phonebook():
 
@@ -396,5 +402,25 @@ def upload_phonebook():
     except:
         if not phonebook.split('.')[1] is 'csv':
             return 'Wrong Format'
+
+def simulate_cdr():
+
+    # create mock selection 
+    mock_desription = ['Yes', 'No', 'Maybe', 'Call Me Later', 'Do Not Call']
+
+    # create mock CDR
+    for lead in Lead.objects.all():
+
+        selection = Selection()
+        selection.key = random.randrange(0, 5)
+        selection.description = mock_desription[selection.key]
+        selection.save()
+
+        record = CallDetailRecord()
+        record.lead = lead
+        record.selection = selection
+        record.save()
+            
+    return None
             
 
