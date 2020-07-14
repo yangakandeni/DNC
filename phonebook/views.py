@@ -1,14 +1,13 @@
 import csv
 # import random
 from django.shortcuts import render
-# from .models import Phonebook, Lead, Selection, CallDetailRecord, DoNotCall
-from .models import DoNotCall
+from .models import Phonebook, Lead, Selection, CallDetailRecord, DoNotCall
 from django.http import HttpResponse
 import json
 
 def index(request):
 
-    test_dict = convert_to_dict('static/phonebooks/phonebook1.csv', 'contact name', 'contact number', 'age')
+    test_dict = convert_to_dict( contact_name='contact name', contact_number='contact number', age='age')
     
 
 
@@ -317,11 +316,12 @@ def index(request):
 
 def convert_to_dict(csvfilepath=None, contact_name=None, contact_number=None, age=None):
 
-    csvfile = csvfilepath.split('/')[-1]
     # dict storage
     dict_storage = dict()
 
-    if not csvfile is None:
+    if not csvfilepath is None:
+        csvfile = csvfilepath.split('/')[-1]
+
         # convert phonebook entries to dictionary
         with open(f'static/phonebooks/{csvfile}') as inFile:
             reader = csv.reader(inFile)
@@ -338,9 +338,11 @@ def convert_to_dict(csvfilepath=None, contact_name=None, contact_number=None, ag
                     # add number to and relative data to storage
                     dict_storage[row[number_index]] = dict_storage.setdefault(row[number_index], {'number': row[number_index], 'name': row[name_index], 'age': row[age_index]})
     
-    # else:
-    #     # convert CDR entries to dictionary
-    #     for record in 
+    else:
+        # convert CDR entries to dictionary
+        for record in CallDetailRecord.objects.all():
+            dict_storage[record.lead.contact_number] = dict_storage.setdefault(record.lead.contact_number, record.selection.key)
+
 
     return dict_storage
 
