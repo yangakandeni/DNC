@@ -1,8 +1,8 @@
 import csv
 # import random
-# from django.shortcuts import render
+from django.shortcuts import render
 # from .models import Phonebook, Lead, Selection, CallDetailRecord, DoNotCall
-
+from phonebook.apps import DoNotCall
 # def index(request):
 #     pass
     
@@ -314,7 +314,7 @@ def convert_to_dict(csvfilepath=None, contact_name=None, contact_number=None, ag
     dict_storage = dict()
 
     if not csvfile is None:
-        # extract numbers from phonebook
+        # convert phonebook entries to dictionary
         with open(f'static/phonebooks/{csvfile}') as inFile:
             reader = csv.reader(inFile)
             
@@ -329,6 +329,10 @@ def convert_to_dict(csvfilepath=None, contact_name=None, contact_number=None, ag
                 else:
                     # add number to and relative data to storage
                     dict_storage[row[number_index]] = dict_storage.setdefault(row[number_index], {'number': row[number_index], 'name': row[name_index], 'age': row[age_index]})
+    
+    # else:
+    #     # convert CDR entries to dictionary
+    #     for record in 
 
     return dict_storage
 
