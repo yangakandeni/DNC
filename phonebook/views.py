@@ -2,9 +2,17 @@ import csv
 # import random
 from django.shortcuts import render
 # from .models import Phonebook, Lead, Selection, CallDetailRecord, DoNotCall
-from phonebook.apps import DoNotCall
-# def index(request):
-#     pass
+from .models import DoNotCall
+from django.http import HttpResponse
+import json
+
+def index(request):
+
+    test_dict = convert_to_dict('static/phonebooks/phonebook1.csv', 'contact name', 'contact number', 'age')
+    
+
+
+    return HttpResponse(json.dumps(test_dict))
     
     # # temp manual upload phonebook
     # upload = input("\nUpload Phonebook: \n")
@@ -336,5 +344,5 @@ def convert_to_dict(csvfilepath=None, contact_name=None, contact_number=None, ag
 
     return dict_storage
 
-print(convert_to_dict('static/phonebooks/phonebook1.csv', 'contact name', 'contact number', 'age'))
+# print(convert_to_dict('static/phonebooks/phonebook1.csv', 'contact name', 'contact number', 'age'))
 
