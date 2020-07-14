@@ -7,7 +7,7 @@ import json
 
 def index(request):
 
-    test_dict = convert_to_dict( contact_name='contact name', contact_number='contact number', age='age')
+    test_dict = convert_to_dict()
     
 
 
@@ -346,5 +346,5 @@ def convert_to_dict(csvfilepath=None, contact_name=None, contact_number=None, ag
 
     return dict_storage
 
-# print(convert_to_dict('static/phonebooks/phonebook1.csv', 'contact name', 'contact number', 'age'))
+# print(convert_to_dict(csvfilepath='static/phonebooks/phonebook1.csv', contact_name='contact name', contact_number='contact number', age='age'))
 
