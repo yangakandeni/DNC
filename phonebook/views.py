@@ -8,8 +8,8 @@ import json
 def index(request):
     
     # upload phonebook
-    # csv_file = upload_phonebook()
     csv_file = 'phonebook1.csv'
+    # csv_file = upload_phonebook()
 
     # get all records in the CDR and covert to dict
     cdr_dict = convert_to_dict(model=CallDetailRecord)
@@ -476,11 +476,16 @@ def simulate_cdr(type='csv', alead=None):
 
 def update_dnc(dnc_key='4'):
     
-    dnc_dict = CallDetailRecord.objects.filter(selection__key=dnc_key)
+    # retrieve all cdr leads with selection key matching dnc key
+    cdr_records = CallDetailRecord.objects.filter(selection__key=dnc_key)
     
-    for record in dnc_dict:
-        dnc_list = DoNotCall()
-        dnc_list.lead = record.lead
-        dnc_list.save()
+    # convert DNC records into dict
+    dnc_dict = convert_to_dict(DoNotCall)
+    
+    for record in cdr_records:
+        if not record.lead.contact_number in dnc_dict:
+            dnc_list = DoNotCall()
+            dnc_list.lead = record.lead
+            dnc_list.save()
         
     return None
