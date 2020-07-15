@@ -22,7 +22,8 @@ def index(request):
         simulate_cdr()
         
         # update DNCs
-        update_dnc()    
+        update_dnc()   
+           
     else:       
         # get all records in the DNC and covert to dict 
         dnc_dict = convert_to_dict(model=DoNotCall)
@@ -32,18 +33,13 @@ def index(request):
         
         for num in phonebook_dict:
             if not num in dnc_dict:
-                # print(f'\n{num}')
                 # create lead 
                 create_lead(csvfile=csv_file,_dict=phonebook_dict, key=num, subkey_age='age', subkey_contact_name='name', subkey_contact_number='number', type='dict')
-                # # update DNCs
-                # update_dnc()
-            else:
-                print(num)
                 
-        # return HttpResponse(json.dumps(dnc_dict))
-    # simulate CDR
-    simulate_cdr()
-    
+                # update DNCs
+                update_dnc()
+            else:
+                continue
 
     # parse mock CDR into template
     context = {
@@ -433,6 +429,8 @@ def create_lead(csvfile=None, _dict=None, key=None, subkey_age=None, subkey_cont
         lead.phonebook = phonebook
         lead.save()
         
+        simulate_cdr(type='dict', alead=lead)
+        
     return None
 
 def upload_phonebook():
@@ -444,23 +442,35 @@ def upload_phonebook():
         if not phonebook.split('.')[1] is 'csv':
             return 'Wrong Format'
 
-def simulate_cdr():
+def simulate_cdr(type='csv', alead=None):
 
     # create mock selection 
     mock_desription = ['Yes', 'No', 'Maybe', 'Call Me Later', 'Do Not Call']
 
-    # create mock CDR
-    for lead in Lead.objects.all():
+    # create mock CDR FROM CSV FILE
+    if type == 'csv':
+        for lead in Lead.objects.all():
 
+            selection = Selection()
+            selection.key = random.randrange(0, 5)
+            selection.description = mock_desription[selection.key]
+            selection.save()
+
+            record = CallDetailRecord()
+            record.lead = lead
+            record.selection = selection
+            record.save()
+    else:
         selection = Selection()
         selection.key = random.randrange(0, 5)
         selection.description = mock_desription[selection.key]
         selection.save()
 
         record = CallDetailRecord()
-        record.lead = lead
+        record.lead = alead
         record.selection = selection
         record.save()
+        
             
     return None
 
