@@ -368,7 +368,7 @@ def create_leads():
 
     # make instance of Phonebook
     phonebook = Phonebook()
-    phonebook.name = csvfile
+    phonebook.name = csvfile.split('.')[0]
     phonebook.save()
 
     # Create new lead
