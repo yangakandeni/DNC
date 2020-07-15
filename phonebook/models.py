@@ -26,7 +26,7 @@ class Selection(models.Model):
         return f'{self.key} | {self.description}'
 
 class CallDetailRecord(models.Model):
-    lead = models.ForeignKey(Lead, on_delete=models.CASCADE)
+    lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='records')
     selection = models.ForeignKey(Selection, on_delete=models.CASCADE) 
     date = models.DateTimeField(auto_now_add=True)
     
