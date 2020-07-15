@@ -6,15 +6,39 @@ from django.http import HttpResponse
 import json
 
 def index(request):
+    
+    # upload phonebook
+    # csv_file = upload_phonebook()
+    csv_file = 'phonebook1.csv'
 
-    data = convert_to_dict()
+    # get all records in the CDR and covert to dict
+    cdr_records = convert_to_dict()
 
-    if len(data) <= 0:
-        # save leads to db
-        create_leads()
+    if len(cdr_records) <= 0:
+        # generate leads using phonebook data
+        create_leads(csv_file)
 
         # simulate CDR
         simulate_cdr()
+    else:       
+        # update DNCs 
+        update_dnc('3')
+        
+        # convert phonebook data to dict
+        phonebook_dict = convert_to_dict(csvfilepath=f'static/phonebooks/{csv_file}', contact_name='contact name', contact_number='contact number', age='age')
+        
+        # for num in phonebook_dict:
+        #     if num in cdr_records:
+        #         if cdr_records[num] == '3':
+        #             # save to DNC table
+        #             dnc = DoNotCall()
+        #             dnc.lead = Lead.objects.filter(contact_number='3')
+        #             dnc.save()
+                    
+        #         else:
+        #             print(f'\n{num}')
+        
+        return HttpResponse(json.dumps(cdr_records))
 
     # parse mock CDR into template
     context = {
@@ -351,20 +375,18 @@ def convert_to_dict(csvfilepath=None, contact_name=None, contact_number=None, ag
     else:
         # convert CDR entries to dictionary
         for record in CallDetailRecord.objects.all():
-            dict_storage[record.lead.contact_number] = dict_storage.setdefault(record.lead.contact_number, record.selection.key)
+            dict_storage[record.lead.contact_number] = dict_storage.setdefault(record.lead.contact_number, {
+                'name': record.lead.contact_name,
+                'age' : record.lead.age,
+                'selection': record.selection.key
+            })
 
 
     return dict_storage
 
 # print(convert_to_dict(csvfilepath='static/phonebooks/phonebook1.csv', contact_name='contact name', contact_number='contact number', age='age'))
 
-def create_leads():
-    
-    # upload csv file
-    # csvfile = upload_phonebook()
-
-    # for test purposes, gonna use 'phonebook1.csv' as uploaded phoneboook
-    csvfile = 'phonebook1.csv'
+def create_leads(csvfile):
 
     # make instance of Phonebook
     phonebook = Phonebook()
@@ -422,5 +444,14 @@ def simulate_cdr():
         record.save()
             
     return None
-            
 
+def update_dnc(dnc_key):
+    
+    dnc_records = CallDetailRecord.objects.filter(selection__key=dnc_key)
+    
+    for record in dnc_records:
+        dnc_list = DoNotCall()
+        dnc_list.lead = record.lead
+        dnc_list.save()
+        
+    return None
